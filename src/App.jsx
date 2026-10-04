@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { Routes, Route, useLocation } from 'react-router-dom'
-import { AnimatePresence } from 'framer-motion'
+import { AnimatePresence, MotionConfig } from 'framer-motion'
 import Header from './components/Header.jsx'
 import Footer from './components/Footer.jsx'
 import Page from './components/Page.jsx'
@@ -24,10 +24,12 @@ export default function App() {
   }, [index])
 
   return (
+    // reducedMotion="user" : respecte le réglage « réduire les animations » du système.
+    <MotionConfig reducedMotion="user">
     <div className="shell">
       <Header />
       <main className="main">
-        <AnimatePresence mode="wait" custom={direction} initial={false}>
+        <AnimatePresence mode="wait" custom={direction}>
           <Routes location={location} key={location.pathname}>
             <Route path="/" element={<Page direction={direction}><Home /></Page>} />
             <Route path="/atelier" element={<Page direction={direction}><Atelier /></Page>} />
@@ -40,5 +42,6 @@ export default function App() {
       </main>
       <Footer />
     </div>
+    </MotionConfig>
   )
 }

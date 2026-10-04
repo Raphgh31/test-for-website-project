@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
+import { Stagger, Item, Reveal, colors, ease } from '../components/motion.jsx'
 
 const projets = [
   { nom: 'Fournil Morel', type: 'Boutique', annee: 2026, couleur: '#c9a77c', texte: 'Précommande de pain et viennoiseries, retrait en boutique.' },
@@ -10,6 +11,13 @@ const projets = [
   { nom: 'Thé & Tasses', type: 'Boutique', annee: 2024, couleur: '#5e6b55', texte: 'Boutique de thés en vrac, expédition dans toute la France.' },
 ]
 
+// Les cartes d'une même rangée arrivent en léger décalé.
+const carte = {
+  hidden: { opacity: 0, y: 32 },
+  visible: (i) => ({ opacity: 1, y: 0, transition: { duration: 0.6, ease, delay: (i % 2) * 0.12 } }),
+  exit: { opacity: 0, scale: 0.96, transition: { duration: 0.2 } },
+}
+
 const filtres = ['Tous', 'Vitrine', 'Boutique', 'Association']
 
 export default function Realisations() {
@@ -18,38 +26,58 @@ export default function Realisations() {
 
   return (
     <div className="container">
-      <header className="page-head">
-        <p className="eyebrow">Réalisations</p>
-        <h1>Quelques projets récents.</h1>
-      </header>
+      <Stagger as="header" className="page-head" onMount>
+        <Item as="p" className="eyebrow">Réalisations</Item>
+        <Item as="h1">Quelques projets récents.</Item>
+      </Stagger>
 
-      <div className="filters" role="group" aria-label="Filtrer les projets">
+      <Reveal className="filters" role="group" aria-label="Filtrer les projets" delay={0.2}>
         {filtres.map((f) => (
-          <button
+          <motion.button
             key={f}
-            className={`chip ${filtre === f ? 'chip--on' : ''}`}
+            className="chip"
             aria-pressed={filtre === f}
             onClick={() => setFiltre(f)}
+            initial={false}
+            animate={filtre === f
+              ? { backgroundColor: colors.ink, color: colors.paper, borderColor: colors.ink }
+              : { backgroundColor: 'rgba(31, 28, 23, 0)', color: colors.ink, borderColor: colors.rule }}
+            whileHover={filtre === f ? undefined : { borderColor: colors.ink, y: -2 }}
+            whileTap={{ scale: 0.95 }}
+            transition={{ duration: 0.2 }}
           >
             {f}
-          </button>
+          </motion.button>
         ))}
-      </div>
+      </Reveal>
 
       <motion.ul layout className="projects">
         <AnimatePresence initial={false}>
-          {liste.map((p) => (
+          {liste.map((p, i) => (
             <motion.li
               key={p.nom}
               layout
-              initial={{ opacity: 0, scale: 0.97 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.97 }}
-              transition={{ duration: 0.25 }}
               className="project"
+              variants={carte}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.25 }}
+              exit="exit"
+              whileHover="hover"
+              custom={i}
             >
-              <div className="project__visual" style={{ '--c': p.couleur }} aria-hidden="true">
-                <span>{p.nom}</span>
+              <div className="project__frame">
+                <motion.div
+                  className="project__visual"
+                  style={{ '--c': p.couleur }}
+                  aria-hidden="true"
+                  variants={{ hover: { scale: 1.04 } }}
+                  transition={{ duration: 0.5, ease }}
+                >
+                  <motion.span variants={{ hover: { y: -6, letterSpacing: '0.01em' } }} transition={{ duration: 0.4, ease }}>
+                    {p.nom}
+                  </motion.span>
+                </motion.div>
               </div>
               <div className="project__info">
                 <h2>{p.nom}</h2>

@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom'
+import { motion } from 'framer-motion'
+import { Reveal, Stagger, Item, ArrowLink, ButtonLink, ease } from '../components/motion.jsx'
 
 const principes = [
   { titre: 'Écouter avant de dessiner', texte: "Un premier rendez-vous d'une heure, sans maquette ni devis. On parle de vous, de vos clients, de ce qui coince aujourd'hui." },
@@ -6,68 +7,94 @@ const principes = [
   { titre: 'Rester joignable après', texte: "Une fois en ligne, vous gardez le même interlocuteur. Une question, une correction : un e-mail suffit." },
 ]
 
+// Le titre apparaît ligne par ligne.
+const titre = ['Des sites web faits', <><em>sur mesure</em>, pour des gens</>, 'qui ont quelque chose', 'à raconter.']
+
 export default function Home() {
   return (
     <>
-      <section className="hero container">
-        <p className="eyebrow">Atelier indépendant · depuis 2019</p>
+      <Stagger as="section" className="hero container" onMount gap={0.1} delay={0.1}>
+        <Item as="p" className="eyebrow">Atelier indépendant · depuis 2019</Item>
         <h1 className="hero__title">
-          Des sites web faits <em>sur mesure</em>, pour des gens qui ont
-          quelque chose à raconter.
+          {titre.map((ligne, i) => (
+            <span key={i} className="hero__line">
+              <Item
+                as="span"
+                variants={{
+                  hidden: { y: '105%', opacity: 1 },
+                  visible: { y: 0, transition: { duration: 0.75, ease } },
+                }}
+              >
+                {ligne}
+              </Item>
+            </span>
+          ))}
         </h1>
         <div className="hero__foot">
-          <p className="lead">
+          <Item as="p" className="lead">
             Ressac conçoit et développe des sites pour les artisans, les
             associations et les petites entreprises. Un interlocuteur, un
             calendrier clair, un site qui vous ressemble.
-          </p>
-          <aside className="note">
+          </Item>
+          <Item
+            as="aside"
+            className="note"
+            variants={{ hidden: { opacity: 0, x: 24 }, visible: { opacity: 1, x: 0, transition: { duration: 0.6, ease } } }}
+          >
             <p className="note__label">En ce moment</p>
             <p>Deux créneaux disponibles pour des projets démarrant en novembre.</p>
-            <Link to="/contact" className="link-arrow">Réserver un échange</Link>
-          </aside>
+            <ArrowLink to="/contact">Réserver un échange</ArrowLink>
+          </Item>
         </div>
-      </section>
+      </Stagger>
 
       <section className="container section">
-        <div className="section__head">
+        <Reveal className="section__head">
           <h2>Trois habitudes de travail</h2>
           <p className="muted">Ce qui ne change pas, quel que soit le projet.</p>
-        </div>
-        <ol className="principes">
+        </Reveal>
+        <Stagger as="ol" className="principes" gap={0.15}>
           {principes.map((p, i) => (
-            <li key={p.titre}>
+            <Item as="li" key={p.titre}>
               <span className="principes__num">{['i', 'ii', 'iii'][i]}.</span>
               <h3>{p.titre}</h3>
               <p>{p.texte}</p>
-            </li>
+            </Item>
           ))}
-        </ol>
+        </Stagger>
       </section>
 
       <section className="feature">
         <div className="container feature__inner">
-          <div className="feature__visual" aria-hidden="true">
+          <motion.div
+            className="feature__visual"
+            aria-hidden="true"
+            initial={{ opacity: 0, rotate: 3, y: 40 }}
+            whileInView={{ opacity: 1, rotate: -1.2, y: 0 }}
+            whileHover={{ rotate: 0, scale: 1.02 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ type: 'spring', stiffness: 120, damping: 18 }}
+          >
             <span>Boulangerie<br />Fournil Morel</span>
-          </div>
-          <div>
-            <p className="eyebrow">Dernier projet livré</p>
-            <h2>Un site de commande en ligne pour un fournil de quartier</h2>
-            <p>
+          </motion.div>
+          <Stagger>
+            <Item as="p" className="eyebrow">Dernier projet livré</Item>
+            <Item as="h2">Un site de commande en ligne pour un fournil de quartier</Item>
+            <Item as="p">
               Précommande du pain la veille, retrait en boutique, et une page
               qui raconte enfin le levain maison. Les commandes du samedi ont
               doublé en deux mois.
-            </p>
-            <Link to="/realisations" className="link-arrow">Voir les réalisations</Link>
-          </div>
+            </Item>
+            <Item><ArrowLink to="/realisations">Voir les réalisations</ArrowLink></Item>
+          </Stagger>
         </div>
       </section>
 
-      <section className="container cta">
-        <h2>Un projet en tête&nbsp;?</h2>
-        <p>Racontez-le en quelques lignes, je réponds sous 48 heures.</p>
-        <Link to="/contact" className="button">Écrire à l'atelier</Link>
-      </section>
+      <Stagger as="section" className="container cta">
+        <Item as="h2">Un projet en tête&nbsp;?</Item>
+        <Item as="p">Racontez-le en quelques lignes, je réponds sous 48 heures.</Item>
+        <Item><ButtonLink to="/contact">Écrire à l'atelier</ButtonLink></Item>
+      </Stagger>
     </>
   )
 }
